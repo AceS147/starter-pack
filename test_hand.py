@@ -13,8 +13,8 @@ class TestHand:
         self.banished = []
         self.hand = []
         self.m_zones = [[None],[None],[None],[None],[None]]
-        self.st_zones = [None] * 6
-        self.em_zones = [None] * 2
+        self.st_zones = [None,None,None,None,None]
+        self.em_zones = [None,None]
 
     def start_game(self):
         filename = input("Enter the name of the desired ydk file: ")
@@ -22,6 +22,11 @@ class TestHand:
             filename += ".ydk"
         self.build_deck(filename)
         self.first_hand()
+        print("Extra Deck: "+ ", ".join(self.e_deck))
+        #print(len(self.e_deck))
+        print("Extra Monster Zones" + ", ".join(self.em_zones))
+        print("Monster Zones" + ", ".join(self.m_zones))
+        print("Spell/Trap Zones" + ", ".join(self.st_zones))
 
     def build_deck(self, filename):
         card_ids = []
@@ -39,6 +44,8 @@ class TestHand:
                         in_main_or_extra = True
                     elif line == "#extra":
                         card_ids.append("EXTRA")
+                    elif line == "!side":
+                        in_main_or_extra = False
                     elif in_main_or_extra and line.isdigit():
                         card_ids.append(line)
 
@@ -66,6 +73,8 @@ class TestHand:
                 print(f"Failed to fetch card ID {card_id}: {e}")
 
         random.shuffle(self.deck)
+        # print(len(self.e_deck))
+        # print(len(self.deck))
 
     def first_hand(self):
         if len(self.deck) < 5:
@@ -97,3 +106,4 @@ class TestHand:
 if __name__ == "__main__":
     game = TestHand()
     game.start_game()
+
