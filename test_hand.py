@@ -3,6 +3,7 @@ import random
 from pathlib import Path 
 from collections import deque
 
+#TODO: Create actionables to simulate gameplay & test move_card()
 class TestHand:
     API_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="
 
@@ -24,9 +25,9 @@ class TestHand:
         self.first_hand()
         print("Extra Deck: "+ ", ".join(self.e_deck))
         #print(len(self.e_deck))
-        print("Extra Monster Zones" + ", ".join(self.em_zones))
-        print("Monster Zones" + ", ".join(self.m_zones))
-        print("Spell/Trap Zones" + ", ".join(self.st_zones))
+        # print("Extra Monster Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.em_zones]))
+        # print("Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.m_zones]))
+        # print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
 
     def build_deck(self, filename):
         card_ids = []
@@ -82,7 +83,7 @@ class TestHand:
             return
         for _ in range(5):
             self.hand.append(self.deck.popleft())
-        print("Starting Hand:", self.hand)
+        print("Starting Hand: "+ ", ".join(self.hand))
 
     def move_card(self, source_name, destination_name, card_name):
         source = getattr(self, source_name)
@@ -100,7 +101,6 @@ class TestHand:
     def overlay(self,field_pos_1,field_pos_2):
         self.m_zones[field_pos_1+1][0].append(self.m_zones[field_pos_2+1][0])
         self.m_zones[field_pos_2][0] = None
-
 
 # Only run if this is the main file
 if __name__ == "__main__":
