@@ -1,5 +1,6 @@
 import requests
 import random
+from pathlib import Path 
 from collections import deque
 
 class TestHand:
@@ -11,45 +12,55 @@ class TestHand:
         self.grave = []
         self.banished = []
         self.hand = []
-        self.m_zones = [None] * 5
+        self.m_zones = [[None],[None],[None],[None],[None]]
         self.st_zones = [None] * 6
         self.em_zones = [None] * 2
 
     def start_game(self):
-        self.build_deck("deck.ydk")
+        filename = input("Enter the name of the desired ydk file: ")
+        if not filename.endswith(".ydk"):
+            filename += ".ydk"
+        self.build_deck(filename)
         self.first_hand()
-        # You can later implement gameplay actions here
-        raise NotImplementedError("Unimplemented method 'start_game'")
 
-    def build_deck(self, file_path):
+    def build_deck(self, filename):
         card_ids = []
         in_main_or_extra = False
+        in_extra = False
 
         try:
+            file_path = Path.cwd() / filename
+            if not file_path.exists():
+                raise(FileNotFoundError)
             with open(file_path, 'r') as file:
                 for line in file:
                     line = line.strip()
-                    if line == "#main" or line == "#extra":
+                    if line == "#main":
                         in_main_or_extra = True
-                    elif line == "!side":
-                        in_main_or_extra = False
+                    elif line == "#extra":
+                        card_ids.append("EXTRA")
                     elif in_main_or_extra and line.isdigit():
                         card_ids.append(line)
+
         except FileNotFoundError:
             print(f"Error: File '{file_path}' not found.")
             return
 
         for card_id in card_ids:
             try:
-                response = requests.get(f"{self.API_URL}{card_id}")
-                response.raise_for_status()
+                if card_id.isdigit():
+                    response = requests.get(f"{self.API_URL}{card_id}")
+                    response.raise_for_status()
 
-                data = response.json()["data"][0]
-                name = data["name"]
-                ctype = data["type"]
-
-                print(f"[{card_id}] {name} - {ctype}")
-                self.deck.append(name)  # or use card_id if simulating draws
+                    data = response.json()["data"][0]
+                    name = data["name"]
+                    if not in_extra:
+                        self.deck.append(name)
+                    else:
+                        self.e_deck.append(name)
+                else:
+                    in_extra = True
+                    continue
 
             except Exception as e:
                 print(f"Failed to fetch card ID {card_id}: {e}")
@@ -64,7 +75,9 @@ class TestHand:
             self.hand.append(self.deck.popleft())
         print("Starting Hand:", self.hand)
 
-    def move_card(self, source, destination, card_name):
+    def move_card(self, source_name, destination_name, card_name):
+        source = getattr(self, source_name)
+        destination = getattr(self, destination_name)
         if card_name in source:
             source.remove(card_name)
             destination.append(card_name)
@@ -74,10 +87,11 @@ class TestHand:
 
     def mill(self):
         self.grave.append(self.deck.popleft())
-#TODO: monsters make an array with their names 
-#and index 0 is the xyz
-    def overlay(self):
-        return
+
+    def overlay(self,field_pos_1,field_pos_2):
+        self.m_zones[field_pos_1+1][0].append(self.m_zones[field_pos_2+1][0])
+        self.m_zones[field_pos_2][0] = None
+
 
 # Only run if this is the main file
 if __name__ == "__main__":
