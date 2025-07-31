@@ -98,9 +98,53 @@ class TestHand:
     def mill(self):
         self.grave.append(self.deck.popleft())
 
+    def draw(self):
+        self.hand.append(self.deck.popleft)
+
     def overlay(self,field_pos_1,field_pos_2):
         self.m_zones[field_pos_1+1][0].append(self.m_zones[field_pos_2+1][0])
         self.m_zones[field_pos_2][0] = None
+
+    def check(self,location_name):
+        match(location_name):
+            case("Hand"):
+                print(self.hand)
+            case("Grave"):
+                print(self.grave)
+            case("Field"):
+                print("Extra Monster Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.em_zones]))
+                print("Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.m_zones]))
+                print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
+
+    def perform_action(self):
+        action = input("Choose an action (move, mill, draw, overlay, check): ").strip().lower()
+
+        if action == "move":
+            source = input("Enter source zone (e.g. hand, grave, deck): ").strip().lower()
+            destination = input("Enter destination zone (e.g. hand, grave, field): ").strip().lower()
+            card_name = input("Enter card name: ").strip()
+            self.move_card(source, destination, card_name)
+
+        elif action == "mill":
+            self.mill()
+
+        elif action == "draw":
+            self.draw()
+
+        elif action == "overlay":
+            try:
+                pos1 = int(input("Enter the index of the first monster zone: "))
+                pos2 = int(input("Enter the index of the second monster zone to overlay: "))
+                self.overlay(pos1, pos2)
+            except ValueError:
+                print("Invalid input. Please enter integer positions.")
+
+        elif action == "check":
+            zone = input("Which zone do you want to check? (hand, grave, field): ").strip().capitalize()
+            self.check(zone)
+
+        else:
+            print("Invalid action.")
 
 # Only run if this is the main file
 if __name__ == "__main__":
