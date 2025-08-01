@@ -117,7 +117,7 @@ class TestHand:
                 print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
 
     def perform_action(self):
-        action = input("Choose an action (move, mill, draw, overlay, check): ").strip().lower()
+        action = input("Choose an action (move, mill, draw, overlay, check, quit): ").strip().lower()
 
         if action == "move":
             source = input("Enter source zone (e.g. hand, grave, deck): ").strip().lower()
@@ -143,6 +143,8 @@ class TestHand:
             zone = input("Which zone do you want to check? (hand, grave, field): ").strip().capitalize()
             self.check(zone)
 
+        elif action == "quit":
+            quit()
         else:
             print("Invalid action.")
 
@@ -150,4 +152,7 @@ class TestHand:
 if __name__ == "__main__":
     game = TestHand()
     game.start_game()
+    end = False
+    while(not end):
+          game.perform_action()
 
