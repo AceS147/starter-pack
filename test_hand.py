@@ -3,7 +3,7 @@ import random
 from pathlib import Path 
 from collections import deque
 
-#TODO: simplify inputs & continue testing
+#TODO: further testing for edge cases
 class TestHand:
     API_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="
 
@@ -89,6 +89,13 @@ class TestHand:
     def move_card(self, source_name, destination_name, card_name):
         source = getattr(self, source_name)
         destination = getattr(self, destination_name)
+        if source_name == "deck" and destination_name == "e_deck":
+            print("You cannot put cards from the main deck in the extra deck")
+            return
+        if source_name == "e_deck" and destination_name == "deck":
+            print("You cannot put cards form the extra deck in the main deck")
+            return
+        
         if card_name in source:
             source.remove(card_name)
             #destination.append(card_name)
@@ -171,4 +178,3 @@ if __name__ == "__main__":
     game.start_game()
     while(True):
           game.perform_action()
-
