@@ -3,7 +3,7 @@ import random
 from pathlib import Path 
 from collections import deque
 
-#TODO: Create actionables to simulate gameplay & test move_card()
+#TODO: find out how to test functionality
 class TestHand:
     API_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="
 
