@@ -74,6 +74,12 @@ class TestHand:
             except Exception as e:
                 print(f"Failed to fetch card ID {card_id}: {e}")
 
+        if ((len(self.deck) < 40) and (len(self.deck)) > 60):
+            print("Sorry. There is not enough cards in the Main Deck. Please add more cards to the main deck and try again.")
+            return
+        if (len(self.e_deck) > 15):
+            print("Sorry. There are too manmy cards in the Extra Deck. Please remove some and try again.")
+            return
         random.shuffle(self.deck)
         # print(len(self.e_deck))
         # print(len(self.deck))
@@ -172,6 +178,8 @@ class TestHand:
                 self.perform_action()
         else:
             print("Invalid action.")
+
+
 
 if __name__ == "__main__":
     game = TestHand()
