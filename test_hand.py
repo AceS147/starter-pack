@@ -143,21 +143,21 @@ class TestHand:
                 print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
 
     def perform_action(self):
-        action = input("Choose an action (move, mill, draw, overlay, check, quit): ").strip().lower()
+        action = input("Choose an action ((m)ove, mil(l), (d)raw, (o)verlay, (c)heck, (q)uit): ").strip().lower()
         #TODO: be sure to specify what zones on field cards are going to ie monster or s/t
-        if action == "move":
+        if action == "move" or action == "m":
             source = input("Enter source zone (e.g. hand, grave, deck): ").strip().lower()
             destination = input("Enter destination zone (e.g. hand, grave, m_zones, st_zones): ").strip().lower()
             card_name = input("Enter card name: ").strip()
             self.move_card(source, destination, card_name)
 
-        elif action == "mill":
+        elif action == "mill" or action == "l":
             self.mill()
 
-        elif action == "draw":
+        elif action == "draw" or action == "d":
             self.draw()
 
-        elif action == "overlay":
+        elif action == "overlay" or action == "o":
             try:
                 pos1 = int(input("Enter the index of the first monster zone: "))
                 pos2 = int(input("Enter the index of the second monster zone to overlay: "))
@@ -165,13 +165,13 @@ class TestHand:
             except ValueError:
                 print("Invalid input. Please enter integer positions.")
 
-        elif action == "check":
+        elif action == "check" or action == "c":
             zone = input("Which zone do you want to check? (hand, grave, field): ").strip().capitalize()
             self.check(zone)
 
-        elif action == "quit":
-            confirm = input("Are you sure? Yes or No ")
-            if(confirm == "Yes"):
+        elif action == "quit" or action == "q":
+            confirm = input("Are you sure? Yes(y) or No(n)")
+            if(confirm == "Yes" or confirm == "y"):
                 print("Thank you for playing!")
                 quit()
             else:
