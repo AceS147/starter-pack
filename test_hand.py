@@ -2,6 +2,7 @@ import requests
 import random
 from pathlib import Path 
 from collections import deque
+from ratelimit import limits, sleep_and_retry
 
 #TODO: further testing for edge cases
 class TestHand:
@@ -30,6 +31,8 @@ class TestHand:
         # print("Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.m_zones]))
         # print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
 
+    @limits(calls=20,period=1)
+    @sleep_and_retry
     def build_deck(self, filename):
         card_ids = []
         in_main_or_extra = False
