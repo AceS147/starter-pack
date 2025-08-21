@@ -173,7 +173,7 @@ class TestHand:
             self.check(zone)
 
         elif action == "quit" or action == "q":
-            confirm = input("Are you sure? Yes(y) or No(n)")
+            confirm = input("Are you sure? Yes(y) or No(n) ")
             if(confirm == "Yes" or confirm == "y"):
                 print("Thank you for playing!")
                 quit()
