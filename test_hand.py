@@ -107,6 +107,14 @@ class TestHand:
         if source_name == "e_deck" and destination_name == "deck":
             print("You cannot put cards form the extra deck in the main deck")
             return
+        if source_name == "e_deck" and destination_name == "m_zones":
+            field_pos = input("Pick a zone 1 through 5: ")
+            self.summon_ex(int(field_pos)-1,card_name,destination_name)
+            return
+        if source_name == "e_deck" and destination_name == "em_zones":
+            field_pos = input("Pick a zone 1 or 2: ")
+            self.summon_ex(int(field_pos)-1,card_name,destination_name)
+            return
         for target in source:
             if card_name == target.name:
                 source.remove(target)
@@ -115,7 +123,7 @@ class TestHand:
                     destination.append(target)
                     return
                 for x in range(len(destination)):
-                    if destination_name == "m_zones":
+                    if destination_name == "m_zones" or destination_name == "em_zones":
                         if destination[x][0] == None:
                             destination[x][0] = target
                             break
@@ -136,9 +144,14 @@ class TestHand:
     def draw(self):
         self.hand.append(self.deck.popleft())
 
-    def overlay(self,field_pos_1,field_pos_2):
-        self.m_zones[field_pos_1+1][0].append(self.m_zones[field_pos_2+1][0])
-        self.m_zones[field_pos_2][0] = None
+    def overlay(self, field_pos_1, field_pos_2):
+        if self.m_zones[field_pos_1][0] is not None and self.m_zones[field_pos_2][0] is not None:
+            self.m_zones[field_pos_1][0].append(self.m_zones[field_pos_2][0])
+            self.m_zones[field_pos_2][0] = None
+            return
+        else:
+            print("You cannot overlay monsters with an empty zone.")
+            return
 
     def check(self, location_name):
         zone = None 
@@ -153,11 +166,17 @@ class TestHand:
                 print("Banishment: " + ", ".join(str(card) for card in self.banished))
                 zone = self.banished
             case "Field":
-                print("Extra Monster Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.em_zones]))
+                print("Extra Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.em_zones]))
                 print("Field Spell Zone: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.fs_zone]))
                 print("Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.m_zones]))
                 print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
                 # For field we don’t have a single zone list, so no simple zone variable
+            case "Deck":
+                print("Cards in Deck: " + "', ".join(str(card) for card in self.deck))
+                zone = self.deck
+            case "Extra deck":
+                print("Cards in extra deck: " + ", ".join(str(card) for card in self.e_deck))
+                zone = self.e_deck
              
 
         further_check = input("Do you wish to check the effect of a card in this zone? (y)es or (n)o ")
@@ -185,12 +204,36 @@ class TestHand:
                         return
                 print("Card not found on the field.")
 
+    def summon_ex(self, field_pos, name, destination_name):
+        destination = getattr(self, destination_name)
+        for target in self.e_deck:
+            if target.name == name:
+                self.e_deck.remove(target)
+                # If the slot is empty, just place the card
+                if destination[field_pos][0] is None:
+                    destination[field_pos][0] = target
+                    return
+                else:
+                    # If the slot is occupied, treat it like a list/overlay stack
+                    if isinstance(destination[field_pos][0], list):
+                        destination[field_pos][0].insert(0, target)
+                        return
+                    else:
+                        # Convert to a stack if it's just one card
+                        destination[field_pos][0] = [target, destination[field_pos][0]]
+                        return
+
+                print(f"Successfully summoned '{name}' to '{destination_name}'")
+                return
+
+        print(f"Card '{name}' not found in Extra Deck")
+   
     def perform_action(self):
         action = input("Choose an action ((m)ove, mil(l), (d)raw, (o)verlay, (c)heck, (q)uit): ").strip().lower()
         #TODO: be sure to specify what zones on field cards are going to ie monster or s/t
         if action == "move" or action == "m":
-            source = input("Enter source zone (e.g. hand, grave, deck): ").strip().lower()
-            destination = input("Enter destination zone (e.g. hand, grave, m_zones, st_zones): ").strip().lower()
+            source = input("Enter source zone (e.g. hand, grave, deck, e_deck): ").strip().lower()
+            destination = input("Enter destination zone (e.g. hand, grave, m_zones, em_zones, st_zones): ").strip().lower()
             card_name = input("Enter card name: ").strip()
             self.move_card(source, destination, card_name)
 
@@ -202,14 +245,14 @@ class TestHand:
 
         elif action == "overlay" or action == "o":
             try:
-                pos1 = int(input("Enter the index of the first monster zone: "))
-                pos2 = int(input("Enter the index of the second monster zone to overlay: "))
+                pos1 = int(input("Enter the zone number of the first monster: "))
+                pos2 = int(input("Enter the zone number of the second monster to overlay: "))
                 self.overlay(pos1, pos2)
             except ValueError:
                 print("Invalid input. Please enter integer positions.")
 
         elif action == "check" or action == "c":
-            zone = input("Which zone do you want to check? (hand, grave, field): ").strip().capitalize()
+            zone = input("Which zone do you want to check? (hand, grave, field, deck, extra deck): ").strip().capitalize()
             self.check(zone)
 
         elif action == "quit" or action == "q":
