@@ -3,6 +3,7 @@ import random
 from pathlib import Path 
 from collections import deque
 from ratelimit import limits, sleep_and_retry
+from card import Card
 
 #TODO: further testing for edge cases
 class TestHand:
@@ -65,11 +66,13 @@ class TestHand:
                     response.raise_for_status()
 
                     data = response.json()["data"][0]
-                    name = data["name"]
+                   
+                    card = Card(data["name"],data["desc"],data["type"])
+
                     if not in_extra:
-                        self.deck.append(name)
+                        self.deck.append(card)
                     else:
-                        self.e_deck.append(name)
+                        self.e_deck.append(card)
                 else:
                     in_extra = True
                     continue
@@ -104,19 +107,19 @@ class TestHand:
         if source_name == "e_deck" and destination_name == "deck":
             print("You cannot put cards form the extra deck in the main deck")
             return
-        
-        if card_name in source:
-            source.remove(card_name)
-            #destination.append(card_name)
-            if source_name == "deck" and not ((destination_name == "m_zones") or (destination_name == "st_zones") or (destination_name == "fs_zone")):
-                destination.append(card_name)
-                return
-            for x in range(len(destination)):
-                if destination[x] == None:
-                    destination[x] = card_name
-                    break
-                else:
-                    continue
+        for target in source:
+            if card_name == target.name:
+                source.remove(target)
+                #destination.append(card_name)
+                if source_name == "deck" and not ((destination_name == "m_zones") or (destination_name == "st_zones") or (destination_name == "fs_zone")):
+                    destination.append(target)
+                    return
+                for x in range(len(destination)):
+                    if destination[x] == None:
+                        destination[x] = target
+                        break
+                    else:
+                        continue
             print(f"Moved '{card_name}' from {source} to {destination}")
         else:
             print(f"Card '{card_name}' not found in source zone.")
@@ -131,19 +134,50 @@ class TestHand:
         self.m_zones[field_pos_1+1][0].append(self.m_zones[field_pos_2+1][0])
         self.m_zones[field_pos_2][0] = None
 
-    def check(self,location_name):
-        match(location_name):
-            case("Hand"):
-                print("Hand: " +", ".join(self.hand))
-            case("Grave"):
-                print("Graveyard: "+ ", ".join(self.grave))
-            case("Banishment"):
-                print("Banishment: "+", ".join(self.banished))
-            case("Field"):
+    def check(self, location_name):
+        match location_name:
+            case "Hand":
+                print("Hand: " + ", ".join([c.name for c in self.hand]))
+                zone = self.hand
+            case "Grave":
+                print("Graveyard: " + ", ".join([c.name for c in self.grave]))
+                zone = self.grave
+            case "Banishment":
+                print("Banishment: " + ", ".join([c.name for c in self.banished]))
+                zone = self.banished
+            case "Field":
                 print("Extra Monster Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.em_zones]))
                 print("Field Spell Zone: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.fs_zone]))
                 print("Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.m_zones]))
                 print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
+                # For field we don’t have a single zone list, so no simple zone variable
+                zone = None  
+
+        further_check = input("Do you wish to check the effect of a card in this zone? (y)es or (n)o ")
+        if further_check.lower() == "y":
+            card_name = input("Enter the card’s name: ").strip()
+
+            # Search the appropriate zone
+            if zone is not None:  # hand, grave, banish
+                for card in zone:
+                    if card.name == card_name:
+                        print(card.desc)
+                        return
+                print("Card not found in this zone.")
+
+            else:  # field is spread across multiple lists
+                all_field_cards = []
+                all_field_cards.extend([z for z in self.em_zones if z is not None])
+                all_field_cards.extend([z for z in self.fs_zone if z is not None])
+                all_field_cards.extend([z[0] for z in self.m_zones if z[0] is not None])
+                all_field_cards.extend([z for z in self.st_zones if z is not None])
+
+                for card in all_field_cards:
+                    if card.name == card_name:
+                        print(card.desc)
+                        return
+                print("Card not found on the field.")
+
 
     def perform_action(self):
         action = input("Choose an action ((m)ove, mil(l), (d)raw, (o)verlay, (c)heck, (q)uit): ").strip().lower()

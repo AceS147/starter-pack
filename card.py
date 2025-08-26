@@ -2,10 +2,10 @@
 
 class Card:
     
-    def __init__(self, name, desc, type):
-        self.name = name
-        self.desc = desc
-        self.type = type
+    def __init__(self, name, desc, type_):
+        self._name = name
+        self._desc = desc
+        self._type = type_
 
     def __str__(self):
         return self.name
