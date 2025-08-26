@@ -8,16 +8,16 @@ class Card:
         self._type = type_
 
     def __str__(self):
-        return self.name
+        return self._name
     
     @property
     def name(self):
-        return self.name
+        return self._name
 
     @property
     def desc(self):
-        return self.desc
+        return self._desc
 
     @property
     def type(self):
-        return self.type   
+        return self.type_   

@@ -5,7 +5,7 @@ from collections import deque
 from ratelimit import limits, sleep_and_retry
 from card import Card
 
-#TODO: further testing for edge cases
+#TODO: add in extra deck stuff to move_card()
 class TestHand:
     API_URL = "https://db.ygoprodeck.com/api/v7/cardinfo.php?id="
 
@@ -16,9 +16,9 @@ class TestHand:
         self.banished = []
         self.hand = []
         self.m_zones = [[None],[None],[None],[None],[None]]
-        self.fs_zone = []
+        self.fs_zone = [None]
         self.st_zones = [None,None,None,None,None]
-        self.em_zones = [None,None]
+        self.em_zones = [[None],[None]]
 
     def start_game(self):
         filename = input("Enter the name of the desired ydk file: ")
@@ -96,7 +96,7 @@ class TestHand:
             return
         for _ in range(5):
             self.hand.append(self.deck.popleft())
-        print("Starting Hand: "+ ", ".join(self.hand))
+        print("Starting Hand: " + ", ".join(str(card) for card in self.hand))
 
     def move_card(self, source_name, destination_name, card_name):
         source = getattr(self, source_name)
@@ -115,35 +115,42 @@ class TestHand:
                     destination.append(target)
                     return
                 for x in range(len(destination)):
+                    if destination_name == "m_zones":
+                        if destination[x][0] == None:
+                            destination[x][0] = target
+                            break
                     if destination[x] == None:
                         destination[x] = target
                         break
                     else:
                         continue
-            print(f"Moved '{card_name}' from {source} to {destination}")
-        else:
-            print(f"Card '{card_name}' not found in source zone.")
+                print(f"Moved '{card_name}' from {source} to {destination}")
+                return
+            
+        print(f"Card '{card_name}' not found in source zone.")
+        return
 
     def mill(self):
         self.grave.append(self.deck.popleft())
 
     def draw(self):
-        self.hand.append(self.deck.popleft)
+        self.hand.append(self.deck.popleft())
 
     def overlay(self,field_pos_1,field_pos_2):
         self.m_zones[field_pos_1+1][0].append(self.m_zones[field_pos_2+1][0])
         self.m_zones[field_pos_2][0] = None
 
     def check(self, location_name):
+        zone = None 
         match location_name:
             case "Hand":
-                print("Hand: " + ", ".join([c.name for c in self.hand]))
+                print("Hand: " + ", ".join(str(card) for card in self.hand))
                 zone = self.hand
             case "Grave":
-                print("Graveyard: " + ", ".join([c.name for c in self.grave]))
+                print("Graveyard: " + ", ".join(str(card) for card in self.grave))
                 zone = self.grave
             case "Banishment":
-                print("Banishment: " + ", ".join([c.name for c in self.banished]))
+                print("Banishment: " + ", ".join(str(card) for card in self.banished))
                 zone = self.banished
             case "Field":
                 print("Extra Monster Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.em_zones]))
@@ -151,7 +158,7 @@ class TestHand:
                 print("Monster Zones: " + ", ".join([str(zone[0]) if zone[0] is not None else "Empty" for zone in self.m_zones]))
                 print("Spell/Trap Zones: " + ", ".join([str(zone) if zone is not None else "Empty" for zone in self.st_zones]))
                 # For field we don’t have a single zone list, so no simple zone variable
-                zone = None  
+             
 
         further_check = input("Do you wish to check the effect of a card in this zone? (y)es or (n)o ")
         if further_check.lower() == "y":
@@ -177,7 +184,6 @@ class TestHand:
                         print(card.desc)
                         return
                 print("Card not found on the field.")
-
 
     def perform_action(self):
         action = input("Choose an action ((m)ove, mil(l), (d)raw, (o)verlay, (c)heck, (q)uit): ").strip().lower()
