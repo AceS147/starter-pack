@@ -22,23 +22,23 @@ class Card(Base):
     card_type = Column(String(), nullable=False)
     
     def __init__(self, name, desc, type):
-        self.name = name
-        self.desc = desc
-        self.type = type
+        self._name = name
+        self._desc = desc
+        self._type = type
 
     def __str__(self):
-        return self.name
+        return self._name
     
     @property
     def name(self):
-        return self.name
+        return self._name
 
     @property
     def desc(self):
-        return self.desc
+        return self._desc
 
     @property
     def type(self):
-        return self.type
+        return self._type
 
 Base.metadata.create_all(engine)
