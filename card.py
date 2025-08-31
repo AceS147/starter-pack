@@ -2,10 +2,10 @@
 
 class Card:
     
-    def __init__(self, name, desc, type_):
+    def __init__(self, name, desc, type):
         self._name = name
         self._desc = desc
-        self._type = type_
+        self._type = type
 
     def __str__(self):
         return self._name
@@ -20,4 +20,4 @@ class Card:
 
     @property
     def type(self):
-        return self.type_   
+        return self._type   
