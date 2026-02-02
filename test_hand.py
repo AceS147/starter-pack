@@ -3,7 +3,7 @@ import random
 from pathlib import Path 
 from collections import deque
 from ratelimit import limits, sleep_and_retry
-from card import Card
+import card 
 
 #TODO: add in extra deck stuff to move_card()
 class TestHand:
@@ -19,6 +19,7 @@ class TestHand:
         self.fs_zone = [None]
         self.st_zones = [None,None,None,None,None]
         self.em_zones = [[None],[None]]
+
 
     def start_game(self):
         filename = input("Enter the name of the desired ydk file: ")
@@ -266,9 +267,3 @@ class TestHand:
             print("Invalid action.")
 
 
-
-if __name__ == "__main__":
-    game = TestHand()
-    game.start_game()
-    while(True):
-          game.perform_action()
