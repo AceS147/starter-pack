@@ -69,12 +69,38 @@ class GameUI:
 
         # --- Field Spell Zone (1) ---
         self.field_spell_zone = pygame.Rect(
-            m_start_x - 200 // 2,
+            m_start_x - 185 // 2,
             m_y,
             CARD_W,
             CARD_H
         )
         #self.field_spell_zone.move(-50,100)
+
+        # --- Extra Deck ---
+        self.e_deck_zone = pygame.Rect(
+            m_start_x - 185 // 2,
+            m_y + CARD_H + 20,
+            CARD_W,
+            CARD_H
+        )
+
+        # --- Graveyard ---
+        self.grave_zone = pygame.Rect(
+            center_x + (CARD_W * 5 + GAP * 6) // 2,
+            m_y,
+            CARD_W,
+            CARD_H
+        )
+
+        # --- Main Deck ---
+        self.deck_zone = pygame.Rect(
+            center_x + (CARD_W * 5 + GAP * 6) // 2,
+            m_y + CARD_H + 20,
+            CARD_W,
+            CARD_H
+        )
+
+
 
         # --- Hand Area (visual only) ---
         self.hand_y = self.HEIGHT - CARD_H - 20
@@ -116,6 +142,19 @@ class GameUI:
 
         if self.game.fs_zone[0]:
             self.draw_card(self.field_spell_zone, self.game.fs_zone[0])
+
+        text = self.font.render('EXTRA  DECK',True,(255,255,255))
+        pygame.draw.rect(self.screen, (255, 255, 100), self.e_deck_zone, 2)
+        self.screen.blit(text,self.e_deck_zone)
+
+        text = self.font.render('GY',True,(255,255,255))
+        pygame.draw.rect(self.screen, (255, 255, 100), self.grave_zone, 2)
+        self.screen.blit(text,self.grave_zone)
+
+        text = self.font.render('MAIN  DECK',True,(255,255,255))
+        pygame.draw.rect(self.screen, (255, 255, 100), self.deck_zone, 2)
+        self.screen.blit(text,self.deck_zone)
+
 
 
 
