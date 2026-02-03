@@ -3,7 +3,7 @@ import random
 from pathlib import Path 
 from collections import deque
 from ratelimit import limits, sleep_and_retry
-import card 
+from card import *
 
 #TODO: add in extra deck stuff to move_card()
 class TestHand:

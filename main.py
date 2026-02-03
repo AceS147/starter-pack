@@ -1,5 +1,6 @@
 import pygame
-from test_hand import TestHand
+import test_hand
+
 
 
 class GameUI:
@@ -11,8 +12,9 @@ class GameUI:
         pygame.display.set_caption("TCG Prototype")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont('Arial',15)
-        self.game = TestHand()
+        self.game = test_hand.TestHand()
         self.build_zones()
+        self.start = False
 
     def build_zones(self):
         CARD_W, CARD_H = 80, 120
@@ -103,10 +105,15 @@ class GameUI:
 
 
         # --- Hand Area (visual only) ---
-        self.hand_y = self.HEIGHT - CARD_H - 20
+        self.hand_y = pygame.Rect(
+            center_x,
+            self.HEIGHT - CARD_H - 20,
+            CARD_W * len(self.game.hand),
+            CARD_H * len(self.game.hand)
+        )
+        self.game.start_game()
 
-
-    def draw(self):
+    def draw_field(self):
         self.screen.fill((30, 120, 30))  # green playmat
         text = self.font.render('EM ZONE',True,(255,255,255))
 
@@ -155,15 +162,13 @@ class GameUI:
         pygame.draw.rect(self.screen, (255, 255, 100), self.deck_zone, 2)
         self.screen.blit(text,self.deck_zone)
 
-
-
-
-        
         # --- Hand ---
+        text = self.font.render('Hand',True,(255,255,255))
+        pygame.draw.rect(self.screen, (255,255,100), self.hand_y, 2)
         self.draw_hand()
 
         pygame.display.flip()
-
+    
     def draw_card(self, rect, card):
         pygame.draw.rect(self.screen, (245, 245, 245), rect)
         pygame.draw.rect(self.screen, (0, 0, 0), rect, 2)
@@ -176,6 +181,7 @@ class GameUI:
         )
 
     def draw_hand(self):
+
         hand = self.game.hand
         if not hand:
             return
@@ -189,7 +195,7 @@ class GameUI:
         for i, card in enumerate(hand):
             rect = pygame.Rect(
                 start_x + i * (CARD_W + GAP),
-                self.hand_y,
+                self.HEIGHT - CARD_H - 20,
                 CARD_W,
                 CARD_H
             )
@@ -202,8 +208,9 @@ class GameUI:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
-
-                self.draw()
+                if not self.start:
+                    self.draw_field()
+                    self.start = True
                 self.clock.tick(60)
         pygame.quit()
 
