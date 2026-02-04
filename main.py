@@ -115,9 +115,9 @@ class GameUI:
 
     def draw_field(self):
         self.screen.fill((30, 120, 30))  # green playmat
-        text = self.font.render('EM ZONE',True,(255,255,255))
 
         # --- Extra Monster Zones ---
+        text = self.font.render('EM ZONE',True,(255,255,255))
         for rect in self.extra_zones:
             pygame.draw.rect(self.screen, (255, 150, 150), rect, 2)
             self.screen.blit(text,rect)
@@ -142,7 +142,7 @@ class GameUI:
             if card:
                 self.draw_card(rect, card)
 
-         # --- Field Spell Zone ---
+        # --- Field Spell Zone ---
         text = self.font.render('FS ZONE',True,(255,255,255))
         pygame.draw.rect(self.screen, (255, 255, 100), self.field_spell_zone, 2)
         self.screen.blit(text,self.field_spell_zone)
@@ -150,17 +150,21 @@ class GameUI:
         if self.game.fs_zone[0]:
             self.draw_card(self.field_spell_zone, self.game.fs_zone[0])
 
-        text = self.font.render('EXTRA  DECK',True,(255,255,255))
-        pygame.draw.rect(self.screen, (255, 255, 100), self.e_deck_zone, 2)
-        self.screen.blit(text,self.e_deck_zone)
-
+        #---GY---
         text = self.font.render('GY',True,(255,255,255))
         pygame.draw.rect(self.screen, (255, 255, 100), self.grave_zone, 2)
         self.screen.blit(text,self.grave_zone)
 
+        #---MAIN DECK---
         text = self.font.render('MAIN  DECK',True,(255,255,255))
         pygame.draw.rect(self.screen, (255, 255, 100), self.deck_zone, 2)
         self.screen.blit(text,self.deck_zone)
+
+        # --- EXTRA DECK --- 
+        text = self.font.render('EXTRA  DECK',True,(255,255,255))
+        pygame.draw.rect(self.screen, (255, 255, 100), self.e_deck_zone, 2)
+        self.screen.blit(text,self.e_deck_zone)
+        self.draw_main()
 
         # --- Hand ---
         text = self.font.render('Hand',True,(255,255,255))
@@ -170,15 +174,18 @@ class GameUI:
         pygame.display.flip()
     
     def draw_card(self, rect, card):
-        pygame.draw.rect(self.screen, (245, 245, 245), rect)
-        pygame.draw.rect(self.screen, (0, 0, 0), rect, 2)
-
-        font = pygame.font.SysFont(None, 18)
-        text = font.render(card.name, True, (0, 0, 0))
-        self.screen.blit(
-            text,
-            text.get_rect(center=rect.center)
-        )
+        if card.face:
+            pygame.draw.rect(self.screen, (245, 245, 245), rect)
+            pygame.draw.rect(self.screen, (0, 0, 0), rect, 2)
+            font = pygame.font.SysFont(None, 18)
+            text = font.render(card.name, True, (0, 0, 0))
+            self.screen.blit(
+                text,
+                text.get_rect(center=rect.center)
+            )
+        else:
+            pygame.draw.rect(self.screen,(0,0,0),rect)
+            pygame.draw.rect(self.screen,(200,200,200),rect,2)
 
     def draw_hand(self):
 
@@ -200,6 +207,26 @@ class GameUI:
                 CARD_H
             )
             self.draw_card(rect, card)
+
+    def draw_main(self):
+        if self.game.deck:
+            for card in self.game.deck:
+                self.draw_card(self.deck_zone, card)
+            self.draw_deck_count(self.deck_zone,len(self.game.deck))
+        if self.game.e_deck:
+            for card in self.game.e_deck:
+                self.draw_card(self.e_deck_zone, card)
+            self.draw_deck_count(self.e_deck_zone,len(self.game.e_deck))
+        
+    def draw_deck_count(self, rect, count):
+        font = pygame.font.SysFont(None, 24)
+        text = font.render(str(count), True, (255, 255, 255))
+
+        # Position: bottom-right of the deck
+        text_rect = text.get_rect()
+        text_rect.bottomleft = (rect.right-23, rect.bottom)
+
+        self.screen.blit(text, text_rect)
 
 
     def run(self):

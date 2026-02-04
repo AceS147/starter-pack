@@ -5,6 +5,7 @@ class Card:
         self._name = name
         self._desc = desc
         self._type = type
+        self._face = False
 
     def __str__(self):
         return self._name
@@ -20,3 +21,11 @@ class Card:
     @property
     def type(self):
         return self._type   
+    
+    @property
+    def face(self):
+        return self._face
+    
+    @face.setter
+    def face(self,val):
+        self._face = val

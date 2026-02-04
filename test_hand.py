@@ -96,7 +96,9 @@ class TestHand:
             print("Not enough cards in deck for a starting hand.")
             return
         for _ in range(5):
-            self.hand.append(self.deck.popleft())
+            newCard = self.deck.popleft()
+            newCard.face = True
+            self.hand.append(newCard)
         print("Starting Hand: " + ", ".join(str(card) for card in self.hand))
 
     def move_card(self, source_name, destination_name, card_name):
