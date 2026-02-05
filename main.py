@@ -13,8 +13,9 @@ class GameUI:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont('Arial',15)
         self.game = test_hand.TestHand()
-        self.build_zones()
         self.start = False
+        self.clickables = []
+        self.build_zones()
 
     def build_zones(self):
         CARD_W, CARD_H = 80, 120
@@ -53,7 +54,6 @@ class GameUI:
 # --- Extra Monster Zones (2) ---
         self.extra_zones = []
         em_y = m_y - CARD_H - 40
-
         EM_GAP = 100  # <-- fixed 100px gap between EM zones
 
         total_width = CARD_W * 2 + EM_GAP
@@ -67,7 +67,6 @@ class GameUI:
                 CARD_H
             )
             self.extra_zones.append(rect)
-
 
         # --- Field Spell Zone (1) ---
         self.field_spell_zone = pygame.Rect(
@@ -102,8 +101,6 @@ class GameUI:
             CARD_H
         )
 
-
-
         # --- Hand Area (visual only) ---
         self.hand_y = pygame.Rect(
             center_x,
@@ -111,6 +108,7 @@ class GameUI:
             CARD_W * len(self.game.hand),
             CARD_H * len(self.game.hand)
         )
+        self.build_clickables()
         self.game.start_game()
 
     def draw_field(self):
@@ -188,11 +186,10 @@ class GameUI:
             pygame.draw.rect(self.screen,(200,200,200),rect,2)
 
     def draw_hand(self):
-
         hand = self.game.hand
         if not hand:
             return
-
+        
         CARD_W, CARD_H = 80, 120
         GAP = 20
 
@@ -228,6 +225,28 @@ class GameUI:
 
         self.screen.blit(text, text_rect)
 
+    def build_clickables(self):
+        self.clickables.append((self.deck_zone, ("deck", -1)))
+        self.clickables.append((self.e_deck_zone, ("e_deck", -1)))
+        self.clickables.append((self.field_spell_zone, ("fs_zone",-1)))
+        self.clickables.append((self.grave_zone, ("grave",-1)))
+        
+
+        for i, rect in enumerate(self.monster_zones):
+            self.clickables.append((rect, ("m_zones", i)))
+
+        for i, rect in enumerate(self.spell_zones):
+            self.clickables.append((rect, ("st_zones", i)))
+        
+        for i, rect in enumerate(self.extra_zones):
+            self.clickables.append((rect, ("em_zones", i)))
+
+    def get_clicked_zone(self, mouse_pos):
+        for rect, info in self.clickables:
+            if rect.collidepoint(mouse_pos):
+                return info
+        return None
+
 
     def run(self):
         running = True
@@ -238,6 +257,11 @@ class GameUI:
                 if not self.start:
                     self.draw_field()
                     self.start = True
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    result = self.get_clicked_zone(event.pos)
+                    if result:
+                        zone_name, index = result
+                        print(f"Clicked {zone_name}, index={index+1}")
                 self.clock.tick(60)
         pygame.quit()
 
